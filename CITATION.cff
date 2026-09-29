@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "Simultaneous Monitoring and Tuning of Markov Chains"
+type: software
+authors:
+  - given-names: Deniz
+    family-names: Sargun
+license: AGPL-3.0-only
+repository-code: "https://github.com/denizsargun/simultaneous-monitoring-and-tuning-of-markov-chains-public"
+preferred-citation:
+  type: conference-paper
+  title: "Belief-Space Control for Personalized Cancer Treatment via Active Inference"
+  authors:
+    - given-names: Deniz
+      family-names: Sargun
+    - given-names: H. Bugra
+      family-names: Tulay
+    - given-names: C. Emre
+      family-names: Koksal
+  collection-title: "Allerton Conference on Communication, Control, and Computing"
+  year: 2026

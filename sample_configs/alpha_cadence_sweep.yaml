@@ -1,0 +1,78 @@
+# Alpha x tuning-cadence sweep
+# Run: python3 alpha_cadence_sweep.py sample_configs/alpha_cadence_sweep.yaml
+#
+# Every (alpha mean, tuning cadence) pair in the `sweep` block is one grid cell.
+# Each cell runs the base config below with
+#   environment.alpha.mean               <- sweep.alpha_means[i]
+#   agent.tuning_policy.tuning_cadence   <- sweep.tuning_cadences[j]
+# so the selected tuning is applied only every `tuning_cadence` steps and the
+# 'None' (no-treatment) matrix is applied on the steps in between.
+#
+# Per Tenet 3: the sweep owns `alpha.mean` and `tuning_cadence` — they must NOT
+# appear in the base config below (the script raises if they do). Alpha is held
+# constant (no decay): `type: constant`, `decay_rate: 0.0` are enforced.
+
+sweep:
+  # environment.alpha.mean per cell: strictly increasing, >= 2 values, each in
+  # (0, 1]. Note the environment draws alpha ~ Exp(mean) clipped to [0, 1], so
+  # the realized mean alpha is below the configured mean as it approaches 1
+  # (reported as realized_alpha_mean).
+  alpha_means: [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5,
+                0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
+  # agent.tuning_policy.tuning_cadence per cell: strictly increasing, >= 2
+  # positive integers. 1 = tune every step; N = tune on every N-th step,
+  # 'None' in between.
+  tuning_cadences: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+
+data:
+  matrices_path: "data/T_additive_complete_nsclc_targ_pdl1.pkl"
+
+agent:
+  measurement_policy:
+    state_measurement_decision_algorithm: entropy_threshold
+    entropy_threshold: 1.0
+  tuning_policy:
+    tuning_space: data # required: cadence > 1 needs the 'None' basis entry
+    is_category_known: true # 'Targeted' is fitted only for Targetable+, so the category must be known
+    tuning_selection: given_constant
+    constant_tuning_selection: 'Targeted'
+    # tuning_cadence: set per cell by sweep.tuning_cadences
+
+environment:
+  true_category: 'Targetable+'
+  alpha:
+    type: constant
+    # mean: set per cell by sweep.alpha_means
+    decay_rate: 0.0
+  number_of_steps: 200
+  number_of_runs: 100 # Monte Carlo runs per grid cell
+  initial_state: "Progress"
+  desired_distribution: [0.05, 0.94, 0.01]
+
+costs:
+  measurement_cost: 0.1
+  switching_cost: 100
+
+metrics:
+  measurement_frequency: 1
+  state_rates: 1
+  average_entropy: 1
+  tuning_matrix_switches: 1
+  tracking_error: 1
+  control_error: 1
+  desired_distribution_distance: 1
+  overall_cost: 1
+  time_to_reach:
+    # Required by the sweep: its headline metric is the restricted mean time
+    # to this pattern (episodes that never match are censored at the horizon).
+    pattern: "(Death,)"
+
+visualization:
+  state_y_axis_positions:
+    Death: 0
+    Progress: 1
+    Disease Control: 2
+
+output:
+  plot: 0 # required 0: per-episode plots open a blocking window per cell
+  verbose: 1 # per-cell console output is captured to <cell>.log in the sweep dir

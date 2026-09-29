@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.DS_Store
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE and tools
+.vscode/
+.idea/
+.claude/
+
+# Simulation and sweep outputs
+results/
+
+# Output and data files (only the published matrices are tracked)
+*.pkl
+!data/T_additive_complete_nsclc_targ_pdl1.pkl
+!data/T_additive_complete_nsclc_pdl1_high.pkl
+!data/T_additive_complete_nsclc_pdl1_pos.pkl
+*.parquet
+*.csv
+*.npy
+*.npz
+*.json
+!docs/data/matrices.json
+*.png

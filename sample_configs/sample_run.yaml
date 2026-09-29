@@ -1,0 +1,79 @@
+# Sample simulation configuration
+# Run: python3 -m simulation.runner sample_configs/sample_run.yaml
+#
+# Per Tenet 3: every parameter must be explicitly set.
+# Missing keys raise KeyError at load time.
+
+data:
+  matrices_path: "data/T_additive_complete_nsclc_targ_pdl1.pkl"
+
+agent:
+  measurement_policy:
+    state_measurement_decision_algorithm: entropy_threshold
+    entropy_threshold: 1.0
+    # For dynamic_programming, comment out entropy_threshold and uncomment below:
+    # discount_factor: 0.99
+    # measurement_cost: 0.01
+    # uncertainty_weight: 0.5
+    # control_weight: 1.0
+  tuning_policy:
+    tuning_space: data
+    is_category_known: true # 'Targeted' is fitted only for Targetable+, so the category must be known
+    tuning_selection: given_constant # random_constant, given_constant, convex, argmax
+    constant_tuning_selection: 'Targeted' # required if tuning_selection=given_constant. 'None', 'Chemo', 'IO', 'Targeted', 'Chemo+VEGF', 'Investigational'
+    tuning_cadence: 4 # apply selected tuning every N steps; 'None' (no treatment) in between. 1 = every step. >1 requires a 'None' basis entry (tuning_space=data).
+
+environment:
+  true_category: 'Targetable+' # 'Targetable+', 'T-/PDL1-High', 'T-/PDL1-Low', 'T-/PDL1-Unknown'
+  alpha:
+    type: decaying
+    mean: 0.03
+    decay_rate: 0.01
+  number_of_steps: 200
+  number_of_runs: 1
+  initial_state: "Progress"    # state name (e.g., "Progress", "Disease Control") or "random" (uniform over non-absorbing states)
+
+  desired_distribution: [0.05, 0.94, 0.01]
+
+costs:
+  measurement_cost: 0.1
+  switching_cost: 100
+
+metrics:
+  measurement_frequency: 1
+  state_rates: 1
+  average_entropy: 1
+  tuning_matrix_switches: 1
+  tracking_error: 1
+  control_error: 1
+  desired_distribution_distance: 1
+  overall_cost: 1
+  time_to_reach:
+    # Regex over the concatenated state trace (comma-separated state names).
+    # Must contain exactly ONE capture group; the reported time is the STATE
+    # INDEX at which the capture group begins. Episodes with no match are
+    # excluded from the aggregate.
+    #
+    # Progression-Free Survival pattern for NSCLC:
+    #   P+ (started in Progress) -> C+ (entered Disease Control) ->
+    #   (P|D) (progressed back OR died).
+    # If the episode is all P, or P then straight to D without visiting C,
+    # the pattern does NOT match and the run is excluded.
+    #pattern: "(?:Progress,)+(?:Disease Control,)+((?:Progress,)|(?:Death,))"
+    pattern: "(Death,)"
+
+
+visualization:
+  # Maps each state name to its position on the y-axis of state-related plots
+  # (True State Over Time and Belief State Evolution). Position 0 is the
+  # bottom of the y-axis. Must cover ALL states and be a permutation of
+  # 0..number_of_states-1 (Tenet 3: no missing / duplicate positions).
+  state_y_axis_positions:
+    Death: 0
+    Progress: 1
+    Disease Control: 2
+
+output:
+  plot: 1
+  verbose: 1
+
