@@ -37,9 +37,13 @@ docs/
    - the **agent** blends its internal model and updates its Bayesian **belief** over
      `(cohort, state)`.
 
-3. **Charts.** One representative episode drives the time-series panels (state, belief,
-   entropy + measurements, category belief, life expectancy, tuning schedule); all runs
-   feed the metric tiles and the survival CDF. Everything is inline SVG.
+3. **Charts.** Two tabs. *Single patient run* simulates one patient from the selected
+   initial state and shows the time-series panels (tuning schedule, state, belief,
+   entropy + measurements, category belief). *Multi-patient averages* simulates the
+   Monte Carlo runs, every patient starting in Progress, and shows the metric tiles and
+   two time-to-reach CDFs: overall survival (weeks to Death) and progression-free
+   survival (weeks to the first Progress after Disease Control, or to Death if Disease
+   Control is never reached). Everything is inline SVG.
 
 ### Faithful port map
 
@@ -54,13 +58,19 @@ The JS in `index.html` follows these Python sources (differences below):
 | `simulation/runner.py` (`_load_matrices_from_yaml`) | `buildModel` |
 | `core/metrics.py` | metric accumulation in `runEpisode` + `runAll` |
 | `core/utils.py` (`compute_steady_state`, `mix_tuning_basis`) | `steadyState` (power iteration), `mixBasis` |
-| `plot_time_to_reach_pattern.py` (`(I−P)v=r`, regex AUC) | `expectedTimeToAbsorption`, `regexArrival` |
+| `plot_time_to_reach_pattern.py` (regex AUC) | `regexArrival` |
 
 **Differences from Python.** The effective matrices, tuning basis, belief updates and
 cadence gate match the Python code. The rest differs in these ways:
 
-- **Random numbers:** the browser uses its own seeded PRNG, so sampled trajectories
-  don't match NumPy step for step; stochastic aggregates match distributionally.
+- **Random numbers:** the browser seeds its own PRNG with a fresh random seed on every
+  run, so runs are not reproducible and sampled trajectories don't match NumPy step for
+  step; stochastic aggregates match distributionally.
+- **Start state:** multi-patient averages start every patient in Progress; the single
+  patient run starts in the selected initial state. Python uses `environment.initial_state`
+  for every run.
+- **Progression-free survival CDF:** browser only. Python's `time_to_reach` regex has no
+  exact equivalent; its PFS pattern excludes patients who die before Disease Control.
 - **Initial belief:** uniform over states in the browser; a random Dirichlet draw per
   category in Python.
 - **Tracking error:** the browser normalizes the true category's belief row before

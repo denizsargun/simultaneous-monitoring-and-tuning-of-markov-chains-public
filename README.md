@@ -162,8 +162,7 @@ See [`docs/README.md`](docs/README.md).
 Code comments cite these as "Tenet N".
 
 1. **Simulations are the source of truth.** Every step is logged; metrics are
-   computed from the logs. (Life-expectancy curves in `plot_time_to_reach_pattern.py`
-   and the web app are solved analytically.)
+   computed from the logs.
 2. **PEP 8 / PEP 20**, formatted with Black.
 3. **No hidden defaults.** Configuration fields are required and a missing value
    raises; a few internal helpers still carry defaults.
