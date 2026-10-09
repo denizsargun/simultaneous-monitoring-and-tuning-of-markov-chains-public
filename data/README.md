@@ -17,9 +17,9 @@ dynamics.
 | `T_additive_complete_nsclc_pdl1_high.pkl` | PD-L1 `High` (≥50%) vs `Low` (<50%), tested patients only |
 | `T_additive_complete_nsclc_pdl1_pos.pkl` | PD-L1 `Positive` (≥1%) vs `Negative` (<1%), tested patients only |
 
-`sample_configs/` use the `targ_pdl1` file. `docs/data/matrices.json` is the same
-`targ_pdl1` data as JSON (rounded to 6 decimals), and `docs/app.html` inlines all
-three.
+`sample_configs/` use the `targ_pdl1` file. The web app offers all three:
+`docs/data/matrices.json` holds them as JSON (rounded to 6 decimals), and
+`docs/app.html` inlines the same numbers.
 
 ## Contents
 

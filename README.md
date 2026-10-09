@@ -131,13 +131,17 @@ step's states, matrices, weights and belief), CSV summaries and a plot.
 
 ## Web app
 
-A client-side port of the simulator runs in the browser on the same matrices:
+A client-side port of the simulator runs in the browser on the same matrices, with a
+selector for the three data sets. It runs entirely in the visitor's browser; GitHub
+Pages only serves the files. The web app measures the state every step (entropy
+threshold 0), so it shows the effect of the tuning policy alone; the monitoring
+policies and their metrics are in the Python code only.
 
 - [`docs/index.html`](docs/index.html): served by GitHub Pages at
   `https://denizsargun.github.io/simultaneous-monitoring-and-tuning-of-markov-chains-public/`;
-  loads `docs/data/matrices.json`.
-- [`docs/app.html`](docs/app.html): self-contained variant with three data sets
-  inlined, a data-set selector and an explicit Run button; opens directly from disk.
+  loads `docs/data/matrices.json` and re-runs on every change.
+- [`docs/app.html`](docs/app.html): self-contained variant with the data sets inlined
+  and an explicit Run button; opens directly from disk.
 
 See [`docs/README.md`](docs/README.md).
 

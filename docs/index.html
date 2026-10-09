@@ -54,10 +54,7 @@
   .val{font-variant-numeric:tabular-nums;color:var(--text);font-weight:600;}
   .newbadge{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--new);padding:1px 6px;border-radius:999px;vertical-align:middle;margin-left:6px;}
   .field.highlight{background:color-mix(in srgb,var(--new) 8%,transparent);margin:0 -16px;padding:10px 16px;border-left:3px solid var(--new);}
-  .desired-bars{display:flex;align-items:flex-end;gap:6px;height:46px;margin-top:4px;}
-  .desired-bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
-  .desired-bars .bar{width:100%;border-radius:3px 3px 0 0;} .desired-bars .cap{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;}
-  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px;}
   .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);}
   .tile .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
   .tile .v{font-size:24px;font-weight:700;margin-top:4px;letter-spacing:-.02em;} .tile .v small{font-size:13px;color:var(--text-2);font-weight:600;}
@@ -115,26 +112,6 @@
           <div class="field"><label>Monte Carlo runs</label><input type="number" id="runsInp" value="60" min="1" max="500" /></div>
         </div>
         <div class="field"><label>Initial state <span class="hint">· single patient run</span></label><select id="initSel"></select></div>
-        <div class="field"><label>Desired distribution π*</label><div class="desired-bars" id="desiredBars"></div></div>
-      </div>
-
-      <div class="group">
-        <h2>Monitoring policy <span class="hint">— when to measure</span></h2>
-        <div class="field"><label>Algorithm</label>
-          <select id="measSel"><option value="entropy_threshold">entropy_threshold</option><option value="dynamic_programming">dynamic_programming</option></select></div>
-        <div class="field" id="entWrap"><label>Entropy threshold · <span class="val" id="entVal">1.00</span></label>
-          <input type="range" min="0" max="1.585" step="0.01" value="1.0" id="entRange" /></div>
-        <div class="field" id="dpWrap" style="display:none">
-          <div class="row2">
-            <div><label>Discount γ</label><input type="number" id="gammaInp" step="0.01" value="0.99" /></div>
-            <div><label>Meas. cost</label><input type="number" id="dpCostInp" step="0.01" value="0.01" /></div>
-          </div>
-          <div class="row2" style="margin-top:6px">
-            <div><label>Uncertainty w</label><input type="number" id="uncInp" step="0.1" value="0.5" /></div>
-            <div><label>Control w</label><input type="number" id="ctrlInp" step="0.1" value="1.0" /></div>
-          </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:6px">DP requires category known — enabled automatically.</div>
-        </div>
       </div>
 
       <div class="group">
@@ -161,14 +138,6 @@
           <div class="field"><label>Decay rate</label><input type="number" id="alphaDecayInp" step="0.01" value="0.01" /></div>
         </div>
       </div>
-
-      <div class="group">
-        <h2>Costs</h2>
-        <div class="row2">
-          <div class="field"><label>Measurement</label><input type="number" id="measCostInp" step="0.1" value="0.1" /></div>
-          <div class="field"><label>Switching</label><input type="number" id="switchCostInp" value="100" /></div>
-        </div>
-      </div>
     </aside>
 
     <main class="canvas">
@@ -187,12 +156,7 @@
               <span class="item"><span class="swatch" style="background:var(--surface-2);border:1px solid var(--border)"></span>None (no treatment)</span></div>
             <div id="c-cadence"></div>
           </div>
-          <div class="panel"><h3>True state over time</h3><p class="sub">Sampled hidden-state trajectory.</p><div id="c-state"></div></div>
-          <div class="panel"><h3>Belief state evolution</h3><p class="sub">Agent posterior over states (stacked to 1).</p>
-            <div class="legend"><span class="item"><span class="swatch" style="background:var(--state-progress)"></span>Progress</span><span class="item"><span class="swatch" style="background:var(--state-control)"></span>Disease Control</span><span class="item"><span class="swatch" style="background:var(--state-death)"></span>Death</span></div>
-            <div id="c-belief"></div></div>
-          <div class="panel"><h3>Belief entropy &amp; measurements</h3><p class="sub">Measure (▲) fires per the monitoring policy.</p><div id="c-entropy"></div></div>
-          <div class="panel"><h3>Category belief evolution</h3><p class="sub">Posterior over the hidden cohorts (stacked to 1).</p><div class="legend" id="cat-legend"></div><div id="c-category"></div></div>
+          <div class="panel wide"><h3>True state over time</h3><p class="sub">Sampled state trajectory.</p><div id="c-state"></div></div>
         </section>
       </div>
       <div id="viewMulti" role="tabpanel" hidden>
@@ -202,7 +166,7 @@
           <div class="panel wide"><h3>Time-to-reach — progression-free survival</h3><p class="sub">Empirical CDF of weeks to the first Progress after Disease Control, or to Death if Disease Control is never reached, across all patients, each starting in Progress; AUC shaded (0–horizon).</p><div id="c-pfs"></div></div>
         </section>
       </div>
-      <p class="footnote" id="foot">Real client-side simulation — the environment, belief filter, agent policies and metrics run in your browser on the fitted NSCLC matrices in <code>data/matrices.json</code>. See <code>docs/README.md</code>.</p>
+      <p class="footnote" id="foot">Real client-side simulation — the environment, belief filter, agent policies and metrics run in your browser on the fitted NSCLC matrices in <code>data/matrices.json</code>. The agent measures the state every step (entropy threshold 0). See <code>docs/README.md</code>.</p>
       <footer style="margin:16px 0 8px;padding:12px 16px;font-size:12px;line-height:1.5;color:var(--text-2);border-top:1px solid var(--border);">
   <b>Research use only.</b> Not validated for clinical use and not medical advice.
   The matrices are aggregate estimates derived from AACR Project GENIE BPC NSCLC data.
@@ -285,7 +249,7 @@ function sampleRow(rng, probs) {
 }
 
 // ---------- model assembly (mirrors runner._load_matrices_from_yaml) ----------
-let MATRICES = null, MODEL = null;
+let DATASETS = null, MATRICES = null, MODEL = null; // DATASETS: data/matrices.json's data sets by stratification
 function buildModel(M) {
   const n = M.states.length, death = M.death_index;
   const cohorts = M.cohort_order.map((name) => M.cohorts[name]);
@@ -324,30 +288,9 @@ function beliefUpdateNoObs(b, Pm) {
 const stateMarginal = (b) => { const S = b[0].length; const m = zeros(S); for (const row of b) for (let s = 0; s < S; s++) m[s] += row[s]; return m; };
 const categoryBelief = (b) => b.map((row) => row.reduce((a, x) => a + x, 0));
 
-// ---------- DP measurement policy (port of _DynamicProgrammingMeasurement) ----------
-function dpPolicy(Ptrue, desired, gamma, measCost, uncW, ctrlW) {
-  const n = Ptrue.length;
-  const term = -ctrlW * jensenShannon(steadyState(Ptrue), desired);
-  let V = zeros(n);
-  for (let it = 0; it < 1000; it++) {
-    const Vn = zeros(n); let diff = 0;
-    for (let s = 0; s < n; s++) {
-      const unc = -uncW * entropyBits(Ptrue[s]);
-      let vno = unc; for (let j = 0; j < n; j++) vno += Ptrue[s][j] * V[j];
-      if (it === 999) vno += term;
-      const vmeas = -measCost + gamma * V[s];
-      Vn[s] = Math.max(vno, vmeas); diff = Math.max(diff, Math.abs(Vn[s] - V[s]));
-    }
-    V = Vn; if (diff < 1e-4) break;
-  }
-  const pol = new Array(n);
-  for (let s = 0; s < n; s++) {
-    const unc = -uncW * entropyBits(Ptrue[s]);
-    let vno = unc + term; for (let j = 0; j < n; j++) vno += Ptrue[s][j] * V[j];
-    pol[s] = (-measCost + gamma * V[s]) > vno;
-  }
-  return pol;
-}
+// ---------- measurement policy (port of _EntropyThresholdMeasurement) ----------
+// Threshold 0: the belief entropy is never negative, so the agent measures every step.
+const ENTROPY_THRESHOLD = 0;
 
 // ---------- one episode ----------
 function runEpisode(cfg, seed) {
@@ -357,7 +300,7 @@ function runEpisode(cfg, seed) {
 
   // priors / init
   const prior = zeros(C).fill(1 / C);
-  if (cfg.catKnown || cfg.meas === "dynamic_programming") { prior.fill(0); prior[tc] = 1; }
+  if (cfg.catKnown) { prior.fill(0); prior[tc] = 1; }
   // cohorts the agent models (positive prior); only these advance P_model (mirrors agent.py)
   const modeled = prior.map((p, c) => (p > 0 ? c : -1)).filter((c) => c >= 0);
   const initDist = Array.from({ length: C }, () => new Array(S).fill(1 / S)); // uniform (deterministic)
@@ -381,8 +324,6 @@ function runEpisode(cfg, seed) {
   if (missing.length) throw new Error(`Selection "${cfg.sel}" can apply actions with no fitted tuning matrix for a cohort the agent models (category known: ${modeled.length === 1}): ${missing.join(", ")}. No fallback: pick an action fitted for these cohorts, or make the category known with a cohort that has it.`);
   // argmax: per-(cohort, action) JS(steady, desired), weighted by the cohort belief each step
   const jsScore = basis.map((row) => row.map((Mx) => (Mx ? jensenShannon(steadyState(Mx), cfg.desired) : Infinity)));
-
-  const dp = cfg.meas === "dynamic_programming" ? dpPolicy(P0[tc], cfg.desired, cfg.gamma, cfg.dpCost, cfg.uncW, cfg.ctrlW) : null;
 
   function weights(step) {
     const w = zeros(K);
@@ -414,37 +355,24 @@ function runEpisode(cfg, seed) {
   }
 
   let state = cfg.initState;
-  const rec = { state: [], belief: [], entropy: [], meas: [], catBelief: [], applied: [], trace: [] };
-  let prevW = null, switches = 0, measCount = 0;
+  const rec = { state: [], applied: [], trace: [] };
+  let prevW = null, switches = 0;
   const stateCounts = zeros(S);
-  let trackErr = 0, ctrlErr = 0, trackN = 0, ctrlN = 0;
+  let ctrlErr = 0, ctrlN = 0;
 
   for (let step = 0; step < cfg.steps; step++) {
     const sBefore = state;
     // agent decisions
-    const ent = entropyBits(stateMarginal(belief));
-    let measure;
-    if (cfg.meas === "dynamic_programming") { const est = argmax(belief[tc]); measure = dp[est] ? 1 : 0; }
-    else measure = ent >= cfg.entThreshold ? 1 : 0;
+    const measure = entropyBits(stateMarginal(belief)) >= ENTROPY_THRESHOLD ? 1 : 0;
     const { w, Tby, Tenv, appliedNonNone } = tuning(step);
 
-    // logging (pre-update belief = this step's prior), mirrors simulator record order
+    // logging, mirrors simulator record order
     rec.state.push(sBefore);
     rec.trace.push(MODEL.states[sBefore]);
-    rec.belief.push([stateMarginal(belief)[0], stateMarginal(belief)[1], stateMarginal(belief)[2]]);
-    rec.entropy.push(ent);
-    rec.meas.push(measure);
-    rec.catBelief.push(categoryBelief(belief));
     rec.applied.push(appliedNonNone ? 1 : 0);
 
     // metrics accumulation
     stateCounts[sBefore]++;
-    if (measure) measCount++;
-    // tracking error: belief[true_cat], NORMALIZED to a distribution, vs one-hot(true_state_before)
-    // (Python's core.metrics uses the unnormalized joint row; see docs/README.md)
-    { const bt = belief[tc], sum = bt.reduce((a, x) => a + x, 0) || 1; let e = 0;
-      for (let s = 0; s < S; s++) { const one = s === sBefore ? 1 : 0; e += (bt[s] / sum - one) ** 2; }
-      trackErr += Math.sqrt(e); trackN++; }
     // control error: JS(belief[true_cat], steadyState(P_model[true_cat]))
     { const bt = belief[tc], sum = bt.reduce((a, x) => a + x, 0) || 1;
       ctrlErr += jensenShannon(bt.map((x) => x / sum), steadyState(Pmodel[tc])); ctrlN++; }
@@ -471,13 +399,12 @@ function runEpisode(cfg, seed) {
   const progression = progressionOrDeathIndex(rec.state, progress, control, death);
   const pfs = regexArrival(rec.trace, "(?:Progress,)+(?:Disease Control,)+((?:Progress,)|(?:Death,))");
   return {
-    rec, switches, measCount, steps: cfg.steps,
+    rec, switches, steps: cfg.steps,
     stateRates: stateCounts.map((x) => x / cfg.steps),
-    trackErr: trackErr / (trackN || 1), ctrlErr: ctrlErr / (ctrlN || 1),
+    ctrlErr: ctrlErr / (ctrlN || 1),
     survival, progression, pfs,
   };
 }
-const argmax = (a) => a.reduce((bi, x, i, arr) => (x > arr[bi] ? i : bi), 0);
 const firstIndex = (arr, v) => { const i = arr.indexOf(v); return i < 0 ? null : i; };
 function progressionOrDeathIndex(states, progress, control, death) {
   // Death ends it; Progress ends it only once Disease Control has been reached. null = censored.
@@ -489,10 +416,10 @@ function progressionOrDeathIndex(states, progress, control, death) {
   return null;
 }
 function regexArrival(trace, pattern) {
+  // state index where the single capture group starts (mirrors core.metrics.time_to_reach_regex_pattern)
   const str = trace.map((s) => s + ",").join("");
-  const re = new RegExp(pattern);
-  const m = re.exec(str); if (!m || m[1] === undefined) return null;
-  return str.slice(0, m.index + m[0].indexOf(m[1])).split(",").length - 1;
+  const m = new RegExp(pattern, "d").exec(str); if (!m || m[1] === undefined) return null;
+  return str.slice(0, m.indices[1][0]).split(",").length - 1;
 }
 
 // ---------- Monte Carlo (multi-patient averages) ----------
@@ -510,11 +437,9 @@ function runAll(cfg) {
   const piDist = mean((e) => Math.sqrt(e.stateRates.reduce((a, r, s) => a + (r - desired[s]) ** 2, 0)));
   return {
     eps, survivals, progressionTimes, pfsAUC,
-    measFreq: mean((e) => e.measCount / e.steps),
     switches: mean((e) => e.switches),
     medianSurvival: survivals[Math.floor(survivals.length / 2)],
-    trackErr: mean((e) => e.trackErr), ctrlErr: mean((e) => e.ctrlErr),
-    piDist, overallCost: mean((e) => e.measCount * cfg.measCost + e.switches * cfg.switchCost),
+    ctrlErr: mean((e) => e.ctrlErr), piDist,
   };
 }
 
@@ -553,29 +478,15 @@ function drawState(rec) {
   const ypos = labels.map((_, i) => i === death ? 0 : (i < death ? i + 1 : i));
   const maxY = labels.length - 1;
   const colorOf = (s) => s === death ? cssVar("--state-death") : (labels[s] === "Progress" ? cssVar("--state-progress") : cssVar("--state-control"));
-  labels.forEach((nm, i) => { const y = yOf(ypos[i], 0, maxY); el("line", { class: "gridline", x1: M.l, y1: y, x2: M.l + PW, y2: y }, svg); const g = el("g", { class: "tick" }, svg); el("text", { x: M.l - 6, y: y + 3, "text-anchor": "end" }, g).textContent = nm; });
+  labels.forEach((nm, i) => { const y = yOf(ypos[i], 0, maxY); el("line", { class: "gridline", x1: M.l, y1: y, x2: M.l + PW, y2: y }, svg); });
   el("line", { class: "axisline", x1: M.l, y1: M.t + PH, x2: M.l + PW, y2: M.t + PH }, svg);
   [0, .25, .5, .75, 1].map((f) => Math.round(f * NSTEP)).forEach((t) => { const g = el("g", { class: "tick" }, svg); el("text", { x: xOf(t), y: H - 6, "text-anchor": "middle" }, g).textContent = t; });
   let d = ""; rec.state.forEach((s, i) => { const x = xOf(i), y = yOf(ypos[s], 0, maxY); d += (i === 0 ? `M${x},${y}` : `H${x}V${y}`); });
   el("path", { d, fill: "none", stroke: cssVar("--accent"), "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+  // state names sit just above their gridlines, inside the plot (too long for the left margin),
+  // drawn after the path with a halo so the trajectory never hides them
+  labels.forEach((nm, i) => { const g = el("g", { class: "tick" }, svg); el("text", { x: M.l + 4, y: yOf(ypos[i], 0, maxY) - 4, "text-anchor": "start", stroke: cssVar("--surface-1"), "stroke-width": 3, "paint-order": "stroke" }, g).textContent = nm; });
   overlay(svg, (step, cx, cy) => { const s = rec.state[step]; showTip(`<div class="tt-h">step ${step}</div><div class="tt-r"><span class="sw" style="background:${colorOf(s)}"></span>${labels[s]}</div>`, cx, cy); });
-}
-function drawStacked(hostId, series, colors, names) {
-  const svg = makeSvg(document.getElementById(hostId), W, H);
-  yTicks(svg, [0, .5, 1], (v) => v.toFixed(1)); xAxis(svg);
-  const L = series[0].length, base = zeros(L);
-  series.forEach((data, k) => { let top = "", bot = ""; for (let i = 0; i < L; i++) top += (i === 0 ? "M" : "L") + xOf(i) + "," + yOf(base[i] + data[i], 0, 1); for (let i = L - 1; i >= 0; i--) bot += "L" + xOf(i) + "," + yOf(base[i], 0, 1); el("path", { d: top + bot + "Z", fill: colors[k], "fill-opacity": .85, stroke: cssVar("--surface-1"), "stroke-width": 1 }, svg); for (let i = 0; i < L; i++) base[i] += data[i]; });
-  overlay(svg, (step, cx, cy) => { const rows = series.map((d, k) => `<div class="tt-r"><span class="sw" style="background:${colors[k]}"></span>${names[k]} <b>${(d[step] * 100).toFixed(0)}%</b></div>`).join(""); showTip(`<div class="tt-h">step ${step}</div>${rows}`, cx, cy); });
-}
-function drawEntropy(rec, threshold, meas) {
-  const svg = makeSvg(document.getElementById("c-entropy"), W, H); const max = 1.585;
-  yTicks(svg, [0, .5, 1, 1.585], (v) => v.toFixed(1), 0, max); xAxis(svg);
-  if (meas === "entropy_threshold") { const yT = yOf(threshold, 0, max); el("line", { x1: M.l, y1: yT, x2: M.l + PW, y2: yT, stroke: cssVar("--muted"), "stroke-width": 1, "stroke-dasharray": "4 4" }, svg); el("text", { class: "axis-label", x: M.l + PW, y: yT - 4, "text-anchor": "end" }, svg).textContent = "threshold " + threshold.toFixed(2); }
-  let d = ""; rec.entropy.forEach((v, i) => { d += (i === 0 ? "M" : "L") + xOf(i) + "," + yOf(v, 0, max); });
-  el("path", { d, fill: "none", stroke: cssVar("--accent"), "stroke-width": 2 }, svg);
-  const g = cssVar("--good");
-  rec.meas.forEach((m, i) => { if (m) { const x = xOf(i), y = yOf(rec.entropy[i], 0, max); el("path", { d: `M${x},${y - 7} l4,7 l-8,0 Z`, fill: g }, svg); } });
-  overlay(svg, (step, cx, cy) => showTip(`<div class="tt-h">step ${step}</div><div class="tt-r"><span class="sw" style="background:${cssVar('--accent')}"></span>entropy <b>${rec.entropy[step].toFixed(2)}</b></div><div class="tt-r"><span class="sw" style="background:${g}"></span>${rec.meas[step] ? "measured" : "no measure"}</div>`, cx, cy));
 }
 function drawCDF(hostId, times, steps, color) {
   // times: sorted event times over all runs, censored runs at the horizon
@@ -594,14 +505,11 @@ function drawCDF(hostId, times, steps, color) {
 }
 function drawMetrics(R, cfg) {
   const tiles = [
-    { k: "Measurement freq.", v: (R.measFreq * 100).toFixed(1), u: "%", d: "of steps" },
     { k: "Tuning switches", v: R.switches.toFixed(0), u: "", d: "per episode" },
     { k: "Time-to-reach AUC", v: R.pfsAUC.toFixed(0), u: "", d: "PFS pattern" },
     { k: "Median survival", v: R.medianSurvival.toFixed(0), u: " st", d: "steps to Death" },
-    { k: "Tracking error", v: R.trackErr.toFixed(2), u: "", d: "belief vs true" },
     { k: "Control error", v: R.ctrlErr.toFixed(2), u: "", d: "JS vs steady" },
     { k: "π* distance", v: R.piDist.toFixed(2), u: "", d: "L2 to desired" },
-    { k: "Overall cost", v: R.overallCost.toFixed(1), u: "", d: "meas + switch" },
   ];
   document.getElementById("metrics").innerHTML = tiles.map((t) => `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}<small>${t.u}</small></div><div class="d">${t.d}</div></div>`).join("");
 }
@@ -622,14 +530,9 @@ function readConfig() {
     seed: crypto.getRandomValues(new Uint32Array(1))[0], // fresh random seeds on every run
     singleSeed: crypto.getRandomValues(new Uint32Array(1))[0],
     desired: DESIRED,
-    meas: $("measSel").value,
-    entThreshold: parseFloat($("entRange").value),
-    gamma: parseFloat($("gammaInp").value), dpCost: parseFloat($("dpCostInp").value),
-    uncW: parseFloat($("uncInp").value), ctrlW: parseFloat($("ctrlInp").value),
     sel: $("selSel").value, drug: $("drugSel").value,
     cadence, catKnown: $("catKnown").checked,
     alphaType: $("alphaTypeSel").value, alphaMean: parseFloat($("alphaMeanInp").value), alphaDecay: parseFloat($("alphaDecayInp").value),
-    measCost: parseFloat($("measCostInp").value), switchCost: parseFloat($("switchCostInp").value),
   };
 }
 let DESIRED = [0.05, 0.94, 0.01];
@@ -639,12 +542,6 @@ function draw({ R, single, cfg }) {
   // single patient run tab
   drawCadence(single.rec, cfg.cadence);
   drawState(single.rec);
-  drawStacked("c-belief", [single.rec.belief.map((b) => b[0]), single.rec.belief.map((b) => b[1]), single.rec.belief.map((b) => b[2])],
-    [cssVar("--state-progress"), cssVar("--state-control"), cssVar("--state-death")], ["Progress", "Disease Control", "Death"]);
-  drawEntropy(single.rec, cfg.entThreshold, cfg.meas);
-  const catColors = [cssVar("--c1"), cssVar("--c2"), cssVar("--c3"), cssVar("--c4")];
-  $("cat-legend").innerHTML = MODEL.names.map((n, i) => `<span class="item"><span class="swatch" style="background:${catColors[i]}"></span>${n}</span>`).join("");
-  drawStacked("c-category", MODEL.names.map((_, k) => single.rec.catBelief.map((cb) => cb[k])), catColors, MODEL.names);
   $("cadBadge").textContent = "cadence = " + cfg.cadence;
   // multi-patient averages tab (every patient starts in Progress)
   drawMetrics(R, cfg);
@@ -667,7 +564,7 @@ function run() {
     const single = runEpisode(cfg, cfg.singleSeed); // single patient run: starts in the selected initial state
     const R = runAll(cfg);
     const ms = (performance.now() - t0).toFixed(0);
-    LAST = { R, single, cfg };
+    LAST = { R, single, cfg, model: MODEL };
     draw(LAST);
     $("statusPill").innerHTML = `<span class="dot"></span>${cfg.runs} runs · ${cfg.steps} steps · ${ms} ms`;
     $("cohortPill").innerHTML = `<span class="dot" style="background:var(--c1)"></span>${MODEL.names[cfg.trueCategory]} · NSCLC`;
@@ -676,42 +573,55 @@ function run() {
   }
 }
 
-function initControls() {
-  // cohorts
+function populateSelectors() {
+  // cohorts (depend on the selected dataset)
   $("cohortSel").innerHTML = MODEL.names.map((n) => `<option>${n}</option>`).join("");
   $("cohortSel").value = MODEL.names.includes("T-/PDL1-Low") ? "T-/PDL1-Low" : MODEL.names[0];
   // states
   $("initSel").innerHTML = MODEL.states.filter((s) => s !== MODEL.states[MODEL.death]).map((s) => `<option>${s}</option>`).join("") + `<option>${MODEL.states[MODEL.death]}</option>`;
   $("initSel").value = MODEL.states[0];
   $("statesSel").innerHTML = `<option>${MODEL.states.join(" · ")}</option>`;
-  // drugs (basis labels excluding None)
+  // drugs (basis labels excluding None): union over the dataset's cohorts
   $("drugSel").innerHTML = MODEL.basisLabels.filter((l) => l !== "None").map((l) => `<option>${l}</option>`).join("");
   $("drugSel").value = MODEL.basisLabels.includes("Chemo") ? "Chemo" : $("drugSel").options[0]?.value; // Chemo is fitted for every cohort
-  // desired bars
-  $("desiredBars").innerHTML = MODEL.states.map((s, i) => { const col = i === MODEL.death ? "var(--state-death)" : (s === "Progress" ? "var(--state-progress)" : "var(--state-control)"); return `<div class="b"><div class="bar" style="height:${Math.max(4, DESIRED[i] * 100)}%;background:${col}"></div><span class="cap">${DESIRED[i].toFixed(2)}</span></div>`; }).join("");
+}
 
+function rebuildModel() {
+  MATRICES = DATASETS[$("dataSel").value]; MODEL = buildModel(MATRICES);
+  DESIRED = MATRICES.states.length === 3 ? [0.05, 0.94, 0.01] : new Array(MATRICES.states.length).fill(1 / MATRICES.states.length);
+  populateSelectors();
+}
+
+function attachListeners() {
   const rerun = () => run();
-  ["cohortSel", "initSel", "stepsInp", "runsInp", "measSel", "entRange", "gammaInp", "dpCostInp", "uncInp", "ctrlInp", "selSel", "drugSel", "cadInp", "catKnown", "alphaTypeSel", "alphaMeanInp", "alphaDecayInp", "measCostInp", "switchCostInp"].forEach((id) => $(id).addEventListener("change", rerun));
-  $("entRange").addEventListener("input", () => { $("entVal").textContent = (+$("entRange").value).toFixed(2); });
+  ["cohortSel", "initSel", "stepsInp", "runsInp", "selSel", "drugSel", "cadInp", "catKnown", "alphaTypeSel", "alphaMeanInp", "alphaDecayInp"].forEach((id) => $(id).addEventListener("change", rerun));
+  $("dataSel").addEventListener("change", () => { rebuildModel(); run(); });
   $("cadInp").addEventListener("input", () => { $("cadEcho").textContent = $("cadInp").value; });
-  $("measSel").addEventListener("change", () => { const dp = $("measSel").value === "dynamic_programming"; $("dpWrap").style.display = dp ? "" : "none"; $("entWrap").style.display = dp ? "none" : ""; if (dp) $("catKnown").checked = true; $("catKnown").disabled = dp; });
   $("selSel").addEventListener("change", () => { $("drugWrap").style.display = $("selSel").value === "given_constant" ? "" : "none"; });
   $("runBtn").addEventListener("click", run);
   $("tabSingle").addEventListener("click", () => showTab("Single"));
   $("tabMulti").addEventListener("click", () => showTab("Multi"));
   $("resetBtn").addEventListener("click", () => location.reload());
-  $("themeBtn").addEventListener("click", () => { const r = document.documentElement; r.setAttribute("data-theme", r.getAttribute("data-theme") === "dark" ? "light" : "dark"); if (LAST) draw(LAST); else run(); });
+  $("themeBtn").addEventListener("click", () => { const r = document.documentElement; r.setAttribute("data-theme", r.getAttribute("data-theme") === "dark" ? "light" : "dark"); if (LAST && LAST.model === MODEL) draw(LAST); else run(); });
 }
 
 // ---------- boot ----------
+function boot(J) {
+  try {
+    DATASETS = J.datasets;
+    $("dataSel").innerHTML = Object.entries(DATASETS).map(([k, d]) => `<option value="${k}">${d.label}</option>`).join("");
+    $("dataSel").disabled = false;
+    $("dataSel").value = J.default_dataset;
+    attachListeners();
+    rebuildModel();
+    run();
+  } catch (e) {
+    const err = $("errBanner"); err.style.display = "block"; err.textContent = "⚠ " + e.message;
+  }
+}
 fetch("./data/matrices.json")
   .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-  .then((M) => {
-    MATRICES = M; MODEL = buildModel(M);
-    DESIRED = M.states.length === 3 ? [0.05, 0.94, 0.01] : new Array(M.states.length).fill(1 / M.states.length);
-    initControls(); run();
-  })
-  .catch((e) => {
+  .then(boot, (e) => {
     const err = $("errBanner"); err.style.display = "block";
     err.innerHTML = `⚠ Could not load <code>data/matrices.json</code> (${e.message}).<br>Open this page over HTTP, not <code>file://</code> — e.g. <code>python3 -m http.server</code> in <code>docs/</code>, then visit the printed URL. On GitHub Pages it works directly.`;
     $("statusPill").innerHTML = `<span class="dot" style="background:var(--critical)"></span>data not loaded`;
