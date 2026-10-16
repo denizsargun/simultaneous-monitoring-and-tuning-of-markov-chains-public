@@ -12,7 +12,7 @@
     --text:#0b0b0b; --text-2:#52514e; --muted:#898781;
     --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
     --state-progress:#eb6834; --state-control:#2a78d6; --state-death:#6f6d68;
-    --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100;
+    --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4; --c6:#008300; --c7:#6250d6; --c8:#e34948;
     --accent:#2a78d6; --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --new:#4a3aa7;
     --radius:10px; --shadow:0 1px 2px rgba(11,11,11,0.05),0 4px 16px rgba(11,11,11,0.05);
     --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -23,7 +23,7 @@
     --text:#fff; --text-2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
     --state-progress:#d95926; --state-control:#3987e5; --state-death:#b8b6ad;
-    --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500;
+    --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181; --c6:#008300; --c7:#9085e9; --c8:#e66767;
     --accent:#3987e5; --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --new:#9085e9;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.4);
   }
@@ -54,7 +54,7 @@
   .val{font-variant-numeric:tabular-nums;color:var(--text);font-weight:600;}
   .newbadge{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--new);padding:1px 6px;border-radius:999px;vertical-align:middle;margin-left:6px;}
   .field.highlight{background:color-mix(in srgb,var(--new) 8%,transparent);margin:0 -16px;padding:10px 16px;border-left:3px solid var(--new);}
-  .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px;}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
   .progress{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
   .pbar{flex:1;height:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;overflow:hidden;}
   .pbar-fill{height:100%;width:0%;background:var(--accent);transition:width .06s linear;}
@@ -82,6 +82,20 @@
   .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:14px;}
   .tab{font:inherit;font-size:13px;font-weight:600;color:var(--text-2);background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:8px 12px;cursor:pointer;}
   .tab:hover{color:var(--text);} .tab.active{color:var(--text);border-bottom-color:var(--accent);}
+  .tt .tt-r .lk{width:12px;height:2px;border-radius:1px;flex:none;}
+  .linekey{width:14px;height:2px;border-radius:1px;display:inline-block;flex:none;vertical-align:middle;}
+  .btn:disabled{opacity:.5;cursor:default;} .btn:disabled:hover{border-color:var(--border);}
+  .case-form{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) auto auto;gap:8px;align-items:end;margin:4px 0 10px;}
+  .case-form .field{margin-bottom:0;}
+  .case-list{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px;}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 4px 3px 10px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);color:var(--text);}
+  .chip button{font:inherit;font-size:14px;line-height:1;border:0;background:none;color:var(--muted);cursor:pointer;padding:3px 6px;border-radius:999px;}
+  .chip button:hover{color:var(--text);background:var(--surface-1);}
+  table.cases{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.cases th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  table.cases td{padding:7px 8px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text);}
+  table.cases th:first-child,table.cases td:first-child{text-align:left;white-space:normal;}
+  table.cases .linekey{margin-right:8px;}
   code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;background:var(--surface-2);padding:1px 5px;border-radius:4px;}
 </style>
 </head>
@@ -129,8 +143,6 @@
             <div style="display:flex;align-items:center;color:var(--text-2);font-size:12px">every N steps</div></div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px">Apply the selected treatment every <span class="val" id="cadEcho">4</span> steps; <b>None</b> (no treatment) in between. <code>1</code> = every step. Positive integers only.</div>
         </div>
-        <div class="field" style="margin-top:10px"><label style="display:flex;align-items:center;gap:8px">
-          <input type="checkbox" id="catKnown" style="width:auto" /> Category known to agent</label></div>
       </div>
 
       <div class="group">
@@ -153,6 +165,7 @@
       <div class="tabs" role="tablist">
         <button class="tab active" id="tabSingle" role="tab" aria-selected="true">Single patient run</button>
         <button class="tab" id="tabMulti" role="tab" aria-selected="false">Multi-patient averages</button>
+        <button class="tab" id="tabCases" role="tab" aria-selected="false">Cases compared</button>
       </div>
       <div id="viewSingle" role="tabpanel">
         <section class="panels">
@@ -170,11 +183,35 @@
       <div id="viewMulti" role="tabpanel" hidden>
         <section class="metrics" id="metrics"></section>
         <section class="panels">
-          <div class="panel wide"><h3>Time-to-reach — overall survival</h3><p class="sub">Empirical CDF of weeks to Death across all patients, each starting in Progress; AUC shaded (0–horizon).</p><div id="c-cdf"></div></div>
-          <div class="panel wide"><h3>Time-to-reach — progression-free survival</h3><p class="sub">Empirical CDF of weeks to the first Progress after Disease Control, or to Death if Disease Control is never reached, across all patients, each starting in Progress; AUC shaded (0–horizon).</p><div id="c-pfs"></div></div>
+          <div class="panel wide"><h3>Time-to-reach — overall survival</h3><p class="sub">Empirical CDF of weeks to Death across all patients, each starting in Progress; P5, P50 and P95 marked under the axis.</p><div id="c-cdf"></div></div>
+          <div class="panel wide"><h3>Time-to-reach — progression-free survival</h3><p class="sub">Empirical CDF of weeks to the first Progress after Disease Control, or to Death if Disease Control is never reached, across all patients, each starting in Progress; P5, P50 and P95 marked under the axis.</p><div id="c-pfs"></div></div>
         </section>
       </div>
-      <p class="footnote" id="foot">Real client-side simulation — environment, belief filter, agent policies and metrics run entirely in this single self-contained file (no server, no network). Multiple fitted NSCLC stratifications are embedded inline and selectable. The agent measures the state every step (entropy threshold 0). Edit controls, then press ▶ Run.</p>
+      <div id="viewCases" role="tabpanel" hidden>
+        <section class="panels">
+          <div class="panel wide">
+            <h3>Cases</h3>
+            <p class="sub">Each case is a true category, a tuning policy and an initial state; the cohorts come from the data set selected in the sidebar. All cases share the sidebar's horizon, Monte Carlo runs and α and use the same random seeds; every patient of a case starts in its initial state. Up to 8 cases.</p>
+            <div class="case-form">
+              <div class="field"><label>True category (cohort)</label><select id="caseCohortSel"></select></div>
+              <div class="field"><label>Selection</label><select id="caseSelSel"><option value="given_constant">given_constant</option><option value="random_constant">random_constant</option><option value="convex">convex</option><option value="argmax">argmax</option></select></div>
+              <div class="field" id="caseDrugWrap"><label>Treatment (given_constant)</label><select id="caseDrugSel"></select></div>
+              <div class="field"><label>Tuning cadence</label><input type="number" id="caseCadInp" min="1" step="1" value="4" /></div>
+              <div class="field"><label>Initial state</label><select id="caseInitSel"></select></div>
+              <button class="btn" id="caseAddBtn">+ Add case</button>
+              <button class="btn primary" id="caseRunBtn" disabled>▶ Run cases</button>
+            </div>
+            <div class="case-list" id="caseList"></div>
+            <p class="sub" id="caseStatus"></p>
+          </div>
+        </section>
+        <section class="panels" id="caseResults" hidden style="margin-top:12px">
+          <div class="panel wide"><h3>Averages by case</h3><p class="sub">Weeks, over the Monte Carlo runs. A percentile of ≥ horizon is not reached within the horizon; a mean marked ≥ counts the runs without the event as the horizon, so the true mean is at least that.</p><div style="overflow-x:auto"><table class="cases" id="caseTable"></table></div></div>
+          <div class="panel wide"><h3>Time-to-reach — overall survival</h3><p class="sub">Empirical CDF of weeks to Death for each case; P5, P50 and P95 marked under the axis.</p><div class="legend" id="caseLegendCdf"></div><div id="c-case-cdf"></div></div>
+          <div class="panel wide"><h3>Time-to-reach — progression-free survival</h3><p class="sub">Empirical CDF of weeks to the first Progress after Disease Control, or to Death if Disease Control is never reached, for each case; P5, P50 and P95 marked under the axis.</p><div class="legend" id="caseLegendPfs"></div><div id="c-case-pfs"></div></div>
+        </section>
+      </div>
+      <p class="footnote" id="foot">Real client-side simulation — environment, belief filter, agent policies and metrics run entirely in this single self-contained file (no server, no network). Multiple fitted NSCLC stratifications are embedded inline and selectable. The agent measures the state every step (entropy threshold 0) and knows the true cohort. Edit controls, then press ▶ Run.</p>
       <footer style="margin:16px 0 8px;padding:12px 16px;font-size:12px;line-height:1.5;color:var(--text-2);border-top:1px solid var(--border);">
   <b>Research use only.</b> Not validated for clinical use and not medical advice.
   The matrices are aggregate estimates derived from AACR Project GENIE BPC NSCLC data.
@@ -302,15 +339,28 @@ const categoryBelief = (b) => b.map((row) => row.reduce((a, x) => a + x, 0));
 // Threshold 0: the belief entropy is never negative, so the agent measures every step.
 const ENTROPY_THRESHOLD = 0;
 
+// ---------- fitted-action check (mirrors agent.py) ----------
+// Every action the selection can apply must be fitted for the true cohort, the only cohort the
+// agent models. Returns the index of cfg.drug in the tuning basis.
+function checkFitted(model, cfg) {
+  const { basis, basisLabels, names } = model, tc = cfg.trueCategory;
+  const givenIdx = basisLabels.indexOf(cfg.drug);
+  if (cfg.sel === "given_constant" && givenIdx < 0) throw new Error(`Drug "${cfg.drug}" is not in the tuning basis ${JSON.stringify(basisLabels)}.`);
+  const selectable = cfg.sel === "given_constant" ? (cfg.cadence > 1 ? [givenIdx, 0] : [givenIdx]) : [...basisLabels.keys()];
+  const missing = selectable.filter((i) => !basis[tc][i]).map((i) => basisLabels[i]);
+  if (missing.length) throw new Error(`Selection "${cfg.sel}" can apply treatments with no fitted tuning matrix for cohort "${names[tc]}": ${missing.join(", ")}. No fallback: ${cfg.sel === "given_constant" ? "pick a treatment fitted for this cohort" : "use given_constant with a fitted treatment, or pick another cohort or data set"}.`);
+  return givenIdx;
+}
+
 // ---------- one episode ----------
-function runEpisode(cfg, seed) {
-  const { n, death, progress, control, P0, basis, basisLabels } = MODEL;
+function runEpisode(model, cfg, seed) {
+  const { n, death, progress, control, P0, basis, basisLabels } = model;
   const C = P0.length, S = n, tc = cfg.trueCategory, K = basisLabels.length;
   const rng = mulberry32(seed);
 
   // priors / init
-  const prior = zeros(C).fill(1 / C);
-  if (cfg.catKnown) { prior.fill(0); prior[tc] = 1; }
+  // the agent knows the true cohort (Python's is_category_known: true): prior one-hot on it
+  const prior = zeros(C); prior[tc] = 1;
   // cohorts the agent models (positive prior); only these advance P_model (mirrors agent.py)
   const modeled = prior.map((p, c) => (p > 0 ? c : -1)).filter((c) => c >= 0);
   const initDist = Array.from({ length: C }, () => new Array(S).fill(1 / S)); // uniform (deterministic)
@@ -325,13 +375,7 @@ function runEpisode(cfg, seed) {
 
   // random_constant index (drawn once)
   let randIdx = Math.floor(rng() * K);   // uniform over all actions, 'None' included (mirrors agent.py)
-  const givenIdx = basisLabels.indexOf(cfg.drug);
-  if (cfg.sel === "given_constant" && givenIdx < 0) throw new Error(`Drug "${cfg.drug}" is not in the tuning basis ${JSON.stringify(basisLabels)}.`);
-  // every action the selection can apply must be fitted for every modeled cohort (mirrors agent.py)
-  const selectable = cfg.sel === "given_constant" ? (cfg.cadence > 1 ? [givenIdx, 0] : [givenIdx]) : [...Array(K).keys()];
-  const missing = [];
-  for (const c of modeled) for (const i of selectable) if (!basis[c][i]) missing.push(`(${MODEL.names[c]}, ${basisLabels[i]})`);
-  if (missing.length) throw new Error(`Selection "${cfg.sel}" can apply actions with no fitted tuning matrix for a cohort the agent models (category known: ${modeled.length === 1}): ${missing.join(", ")}. No fallback: pick an action fitted for these cohorts, or make the category known with a cohort that has it.`);
+  const givenIdx = checkFitted(model, cfg);
   // argmax: per-(cohort, action) JS(steady, desired), weighted by the cohort belief each step
   const jsScore = basis.map((row) => row.map((Mx) => (Mx ? jensenShannon(steadyState(Mx), cfg.desired) : Infinity)));
 
@@ -353,7 +397,7 @@ function runEpisode(cfg, seed) {
     const T = mat(S, S);
     for (let i = 0; i < K; i++) if (w[i]) {
       const B = basis[c][i];
-      if (!B) throw new Error(`No fitted tuning matrix for action "${basisLabels[i]}" in cohort "${MODEL.names[c]}"; it cannot be applied.`);
+      if (!B) throw new Error(`No fitted tuning matrix for action "${basisLabels[i]}" in cohort "${model.names[c]}"; it cannot be applied.`);
       for (let a = 0; a < S; a++) for (let b = 0; b < S; b++) T[a][b] += w[i] * B[a][b];
     }
     return T;
@@ -365,30 +409,17 @@ function runEpisode(cfg, seed) {
   }
 
   let state = cfg.initState;
-  const rec = { state: [], applied: [], trace: [] };
-  let prevW = null, switches = 0;
-  const stateCounts = zeros(S);
-  let ctrlErr = 0, ctrlN = 0;
+  const rec = { state: [], applied: [] };
 
   for (let step = 0; step < cfg.steps; step++) {
     const sBefore = state;
     // agent decisions
     const measure = entropyBits(stateMarginal(belief)) >= ENTROPY_THRESHOLD ? 1 : 0;
-    const { w, Tby, Tenv, appliedNonNone } = tuning(step);
+    const { Tby, Tenv, appliedNonNone } = tuning(step);
 
     // logging, mirrors simulator record order
     rec.state.push(sBefore);
-    rec.trace.push(MODEL.states[sBefore]);
     rec.applied.push(appliedNonNone ? 1 : 0);
-
-    // metrics accumulation
-    stateCounts[sBefore]++;
-    // control error: JS(belief[true_cat], steadyState(P_model[true_cat]))
-    { const bt = belief[tc], sum = bt.reduce((a, x) => a + x, 0) || 1;
-      ctrlErr += jensenShannon(bt.map((x) => x / sum), steadyState(Pmodel[tc])); ctrlN++; }
-    // switching: the chosen action (weights) changed (mirrors simulator.py)
-    if (prevW !== null) { let ch = 0; for (let i = 0; i < K; i++) ch += (w[i] - prevW[i]) ** 2; if (Math.sqrt(ch) > 1e-10) switches++; }
-    prevW = w;
 
     // environment step: set target, blend (sampled alpha), sample next state
     envT[tc] = Tenv;   // true cohort's own matrix for this action
@@ -404,16 +435,10 @@ function runEpisode(cfg, seed) {
   }
 
   // time-to-reach: overall survival = first Death; progression = first Progress after
-  // Disease Control, or Death; PFS tile via regex
+  // Disease Control, or Death
   const survival = firstIndex(rec.state, death);
   const progression = progressionOrDeathIndex(rec.state, progress, control, death);
-  const pfs = regexArrival(rec.trace, "(?:Progress,)+(?:Disease Control,)+((?:Progress,)|(?:Death,))");
-  return {
-    rec, switches, steps: cfg.steps,
-    stateRates: stateCounts.map((x) => x / cfg.steps),
-    ctrlErr: ctrlErr / (ctrlN || 1),
-    survival, progression, pfs,
-  };
+  return { rec, steps: cfg.steps, survival, progression };
 }
 const firstIndex = (arr, v) => { const i = arr.indexOf(v); return i < 0 ? null : i; };
 function progressionOrDeathIndex(states, progress, control, death) {
@@ -425,29 +450,31 @@ function progressionOrDeathIndex(states, progress, control, death) {
   }
   return null;
 }
-function regexArrival(trace, pattern) {
-  // state index where the single capture group starts (mirrors core.metrics.time_to_reach_regex_pattern)
-  const str = trace.map((s) => s + ",").join("");
-  const m = new RegExp(pattern, "d").exec(str); if (!m || m[1] === undefined) return null;
-  return str.slice(0, m.indices[1][0]).split(",").length - 1;
+
+// ---------- percentiles of event times ----------
+// The empirical quantile: the first sorted time at which the step CDF reaches pct %. Times are
+// censored at the horizon, so a quantile equal to the horizon means "not reached".
+const PERCENTILES = [5, 50, 95];
+const quantile = (sorted, pct) => sorted[Math.max(0, Math.ceil((pct * sorted.length) / 100) - 1)];
+// as shown in tiles and tables: "≥" marks a percentile the CDF doesn't reach within the horizon, or a
+// mean that counts those runs as the horizon (the true mean is at least that)
+const fmtPercentile = (sorted, pct, steps) => { const t = quantile(sorted, pct); return t >= steps ? `≥ ${steps}` : String(t); };
+const fmtMean = (sorted, steps) => `${sorted[sorted.length - 1] >= steps ? "≥ " : ""}${(sorted.reduce((a, t) => a + t, 0) / sorted.length).toFixed(0)}`;
+
+// ---------- Monte Carlo (multi-patient averages) ----------
+// Every patient starts in cfg.initState. Run r uses seed (cfg.seed + r * 2654435761), so cases run
+// with the same cfg.seed share their random numbers.
+function runAll(model, cfg) {
+  const eps = [];
+  for (let r = 0; r < cfg.runs; r++) eps.push(runEpisode(model, cfg, (cfg.seed + r * 2654435761) >>> 0));
+  return aggregate(eps, cfg);
 }
 
 // ---------- aggregate a completed set of episodes ----------
 function aggregate(eps, cfg) {
-  const mean = (f) => eps.reduce((a, e) => a + f(e), 0) / eps.length;
   const survivals = eps.map((e) => e.survival == null ? cfg.steps : e.survival).sort((a, b) => a - b);
   const progressionTimes = eps.map((e) => e.progression == null ? cfg.steps : e.progression).sort((a, b) => a - b);
-  const pfsArr = eps.map((e) => e.pfs).filter((x) => x != null);
-  const pfsAUC = pfsArr.length ? pfsArr.reduce((a, t) => a + (cfg.steps - t), 0) / pfsArr.length : 0;
-  const desired = cfg.desired;
-  // pi* distance: mean over episodes of the per-episode L2 distance (mirrors core.metrics)
-  const piDist = mean((e) => Math.sqrt(e.stateRates.reduce((a, r, s) => a + (r - desired[s]) ** 2, 0)));
-  return {
-    eps, survivals, progressionTimes, pfsAUC,
-    switches: mean((e) => e.switches),
-    medianSurvival: survivals[Math.floor(survivals.length / 2)],
-    ctrlErr: mean((e) => e.ctrlErr), piDist,
-  };
+  return { eps, survivals, progressionTimes };
 }
 
 /* ============================================================
@@ -455,6 +482,7 @@ function aggregate(eps, cfg) {
    ============================================================ */
 const SVGNS = "http://www.w3.org/2000/svg";
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]); // names going into innerHTML
 function el(t, a = {}, p = null) { const e = document.createElementNS(SVGNS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
 function makeSvg(host, w, h) { host.innerHTML = ""; const s = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img" }); host.appendChild(s); return s; }
 const tt = document.getElementById("tt");
@@ -464,8 +492,6 @@ let W = 720, H = 200; const M = { l: 34, r: 14, t: 10, b: 22 };
 let PW = W - M.l - M.r, PH = H - M.t - M.b, NSTEP = 200;
 const xOf = (s) => M.l + (s / NSTEP) * PW;
 const yOf = (v, mn, mx) => M.t + (1 - (v - mn) / (mx - mn)) * PH;
-function xAxis(svg) { el("line", { class: "axisline", x1: M.l, y1: M.t + PH, x2: M.l + PW, y2: M.t + PH }, svg); const ticks = [0, .25, .5, .75, 1].map((f) => Math.round(f * NSTEP)); ticks.forEach((t) => { const x = xOf(t); el("line", { class: "gridline", x1: x, y1: M.t, x2: x, y2: M.t + PH }, svg); const g = el("g", { class: "tick" }, svg); el("text", { x, y: H - 6, "text-anchor": "middle" }, g).textContent = t; }); }
-function yTicks(svg, vals, fmt, mn = 0, mx = 1) { vals.forEach((v) => { const y = yOf(v, mn, mx); el("line", { class: "gridline", x1: M.l, y1: y, x2: M.l + PW, y2: y }, svg); const g = el("g", { class: "tick" }, svg); el("text", { x: M.l - 6, y: y + 3, "text-anchor": "end" }, g).textContent = fmt(v); }); }
 function overlay(svg, onMove) { const cross = el("line", { class: "crosshair", y1: M.t, y2: M.t + PH }, svg); const rect = el("rect", { x: M.l, y: M.t, width: PW, height: PH, fill: "transparent" }, svg); rect.addEventListener("mousemove", (ev) => { const r = svg.getBoundingClientRect(); const px = (ev.clientX - r.left) / r.width * W; const step = Math.max(0, Math.min(NSTEP - 1, Math.round((px - M.l) / PW * NSTEP))); const x = xOf(step); cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("opacity", 1); onMove(step, ev.clientX, ev.clientY); }); rect.addEventListener("mouseleave", () => { cross.setAttribute("opacity", 0); hideTip(); }); }
 
 function drawCadence(rec, cadence) {
@@ -495,28 +521,69 @@ function drawState(rec) {
   labels.forEach((nm, i) => { const g = el("g", { class: "tick" }, svg); el("text", { x: M.l + 4, y: yOf(ypos[i], 0, maxY) - 4, "text-anchor": "start", stroke: cssVar("--surface-1"), "stroke-width": 3, "paint-order": "stroke" }, g).textContent = nm; });
   overlay(svg, (step, cx, cy) => { const s = rec.state[step]; showTip(`<div class="tt-h">step ${step}</div><div class="tt-r"><span class="sw" style="background:${colorOf(s)}"></span>${labels[s]}</div>`, cx, cy); });
 }
-function drawCDF(hostId, times, steps, color) {
-  // times: sorted event times over all runs, censored runs at the horizon
-  const wOld = W; W = 720; PW = W - M.l - M.r;
-  const svg = makeSvg(document.getElementById(hostId), W, H);
-  yTicks(svg, [0, .5, 1], (v) => v.toFixed(1)); xAxis(svg);
-  const n = times.length;
-  let area = `M${xOf(0)},${yOf(0, 0, 1)}`, line = `M${xOf(0)},${yOf(0, 0, 1)}`;
-  times.forEach((ti, k) => { const f = (k + 1) / n; area += `L${xOf(ti)},${yOf(k / n, 0, 1)}L${xOf(ti)},${yOf(f, 0, 1)}`; line += `L${xOf(ti)},${yOf(k / n, 0, 1)}L${xOf(ti)},${yOf(f, 0, 1)}`; });
-  area += `L${xOf(steps)},${yOf(1, 0, 1)}L${xOf(steps)},${yOf(0, 0, 1)}Z`; line += `L${xOf(steps)},${yOf(1, 0, 1)}`;
-  el("path", { d: area, fill: color, "fill-opacity": .13 }, svg);
-  el("path", { d: line, fill: "none", stroke: color, "stroke-width": 2 }, svg);
-  const auc = (times.reduce((a, x) => a + (steps - x), 0) / n).toFixed(0);
-  el("text", { class: "directlabel", x: M.l + PW - 4, y: M.t + PH - 8, "text-anchor": "end", fill: color }, svg).textContent = `AUC (0–${steps}) = ${auc}`;
-  W = wOld; PW = W - M.l - M.r;
+function drawCDF(hostId, series, steps) {
+  // Empirical CDFs of event times, one step line per series: [{ name, color, times }], times sorted,
+  // censored runs at the horizon. Each series' P5, P50 and P95 get a dot on the curve and a tick under
+  // the axis; their labels take the first free row (at most 3), and those that don't fit stay in the
+  // tooltip and the table.
+  const w = 720, ml = 34, mr = 14, mt = 10, ph = 168, pw = w - ml - mr, rowH = 13, maxRows = 3, single = series.length === 1;
+  const xo = (t) => ml + (t / steps) * pw, yo = (f) => mt + (1 - f) * ph;
+  const marks = [], rowEnds = [], key = single ? 0 : 8; // labels of two or more series carry a dot in the series color
+  series.forEach((s) => PERCENTILES.forEach((pct) => { const t = quantile(s.times, pct); if (t < steps) marks.push({ s, pct, t, x: xo(t), text: single ? `P${pct} = ${t}` : `P${pct}` }); }));
+  marks.sort((a, b) => a.x - b.x).forEach((m) => {
+    const half = (m.text.length * 6 + key + 6) / 2;
+    let row = rowEnds.findIndex((end) => end <= m.x - half);
+    if (row < 0 && rowEnds.length < maxRows) row = rowEnds.length;
+    if (row >= 0) { rowEnds[row] = m.x + half; m.row = row; }
+  });
+  const unreached = single ? PERCENTILES.filter((pct) => quantile(series[0].times, pct) >= steps) : [];
+  const rows = rowEnds.length + (unreached.length ? 1 : 0), band = mt + ph + 22, h = band + rows * rowH + (rows ? 6 : 0);
+  const svg = makeSvg(document.getElementById(hostId), w, h);
+  [0, .5, 1].forEach((v) => { const y = yo(v); el("line", { class: "gridline", x1: ml, y1: y, x2: ml + pw, y2: y }, svg); const g = el("g", { class: "tick" }, svg); el("text", { x: ml - 6, y: y + 3, "text-anchor": "end" }, g).textContent = v.toFixed(1); });
+  [0, .25, .5, .75, 1].map((f) => Math.round(f * steps)).forEach((t) => { const x = xo(t); el("line", { class: "gridline", x1: x, y1: mt, x2: x, y2: mt + ph }, svg); const g = el("g", { class: "tick" }, svg); el("text", { x, y: mt + ph + 16, "text-anchor": "middle" }, g).textContent = t; });
+  el("line", { class: "axisline", x1: ml, y1: mt + ph, x2: ml + pw, y2: mt + ph }, svg);
+  for (const s of series) {
+    const n = s.times.length;
+    let line = `M${xo(0)},${yo(0)}`;
+    s.times.forEach((ti, k) => { line += `L${xo(ti)},${yo(k / n)}L${xo(ti)},${yo((k + 1) / n)}`; });
+    line += `L${xo(steps)},${yo(1)}`;
+    el("path", { d: line, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+  }
+  // percentile marks: dot on the curve, tick under the axis, label in its row (a leader crosses the week numbers)
+  const surface = cssVar("--surface-1");
+  for (const m of marks) {
+    el("circle", { cx: m.x, cy: yo(m.pct / 100), r: 4, fill: m.s.color, stroke: surface, "stroke-width": 2 }, svg);
+    el("line", { x1: m.x, y1: mt + ph, x2: m.x, y2: mt + ph + 6, stroke: m.s.color, "stroke-width": 2, "stroke-linecap": "round" }, svg);
+    if (m.row === undefined) continue;
+    const ly = band + m.row * rowH + 9;
+    el("line", { x1: m.x, y1: mt + ph + 6, x2: m.x, y2: ly - 9, stroke: m.s.color, "stroke-width": 1, opacity: .5 }, svg);
+    const left = m.x - (m.text.length * 6 + key) / 2;
+    if (key) el("circle", { cx: left + 3, cy: ly - 3.5, r: 3, fill: m.s.color }, svg);
+    const g = el("g", { class: "tick" }, svg); el("text", { x: left + key, y: ly }, g).textContent = m.text;
+  }
+  if (unreached.length) { const g = el("g", { class: "tick" }, svg); el("text", { x: ml + pw, y: band + rowEnds.length * rowH + 9, "text-anchor": "end" }, g).textContent = `${unreached.map((pct) => `P${pct}`).join(", ")} ≥ ${steps} (not reached)`; }
+  // hover: each tick reports its percentile; the crosshair reads every series at the week
+  const tipRow = (s, html) => `<div class="tt-r"><span class="lk" style="background:${s.color}"></span>${html}</div>`;
+  for (const m of marks) {
+    const hit = el("rect", { x: m.x - 12, y: mt + ph, width: 24, height: h - mt - ph, fill: "transparent" }, svg);
+    hit.addEventListener("mouseenter", (ev) => showTip(`<div class="tt-h">${esc(m.s.name)}</div>` + tipRow(m.s, `<b>P${m.pct} = week ${m.t}</b>`), ev.clientX, ev.clientY));
+    hit.addEventListener("mouseleave", hideTip);
+  }
+  const cross = el("line", { class: "crosshair", y1: mt, y2: mt + ph }, svg);
+  const plot = el("rect", { x: ml, y: mt, width: pw, height: ph, fill: "transparent" }, svg);
+  plot.addEventListener("mousemove", (ev) => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * w;
+    const t = Math.max(0, Math.min(steps - 1, Math.round((px - ml) / pw * steps))), x = xo(t);
+    cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("opacity", 1);
+    showTip(`<div class="tt-h">week ${t} · reached</div>` + series.map((s) => tipRow(s, `<b>${(100 * s.times.filter((ti) => ti <= t).length / s.times.length).toFixed(0)}%</b>${single ? "" : " " + esc(s.name)}`)).join(""), ev.clientX, ev.clientY);
+  });
+  plot.addEventListener("mouseleave", () => { cross.setAttribute("opacity", 0); hideTip(); });
 }
 function drawMetrics(R, cfg) {
   const tiles = [
-    { k: "Tuning switches", v: R.switches.toFixed(0), u: "", d: "per episode" },
-    { k: "Time-to-reach AUC", v: R.pfsAUC.toFixed(0), u: "", d: "PFS pattern" },
-    { k: "Median survival", v: R.medianSurvival.toFixed(0), u: " st", d: "steps to Death" },
-    { k: "Control error", v: R.ctrlErr.toFixed(2), u: "", d: "JS vs steady" },
-    { k: "π* distance", v: R.piDist.toFixed(2), u: "", d: "L2 to desired" },
+    { k: "Mean survival", v: fmtMean(R.survivals, cfg.steps), u: " wk", d: "weeks to Death" },
+    { k: "Median survival", v: fmtPercentile(R.survivals, 50, cfg.steps), u: " wk", d: "weeks to Death" },
+    { k: "Mean PFS", v: fmtMean(R.progressionTimes, cfg.steps), u: " wk", d: "weeks to progression or Death" },
   ];
   document.getElementById("metrics").innerHTML = tiles.map((t) => `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}<small>${t.u}</small></div><div class="d">${t.d}</div></div>`).join("");
 }
@@ -525,23 +592,34 @@ function drawMetrics(R, cfg) {
    Controls + orchestration
    ============================================================ */
 const $ = (id) => document.getElementById(id);
-function readConfig() {
-  const cadence = parseInt($("cadInp").value, 10);
-  if (!Number.isInteger(cadence) || cadence < 1) throw new Error(`tuning_cadence must be a positive integer, got "${$("cadInp").value}".`);
-  const trueCategory = MODEL.names.indexOf($("cohortSel").value);
+// horizon, runs and alpha: shared by the sidebar run and every compared case
+function readShared() {
   return {
-    trueCategory,
-    initState: MODEL.states.indexOf($("initSel").value),
     steps: Math.max(10, parseInt($("stepsInp").value, 10) || 200),
     runs: Math.max(1, parseInt($("runsInp").value, 10) || 60),
+    alphaType: $("alphaTypeSel").value, alphaMean: parseFloat($("alphaMeanInp").value), alphaDecay: parseFloat($("alphaDecayInp").value),
+  };
+}
+function readCadence(input) {
+  const cadence = parseInt(input.value, 10);
+  if (!Number.isInteger(cadence) || cadence < 1) throw new Error(`tuning_cadence must be a positive integer, got "${input.value}".`);
+  return cadence;
+}
+function readConfig() {
+  const cadence = readCadence($("cadInp"));
+  const trueCategory = MODEL.names.indexOf($("cohortSel").value);
+  return {
+    ...readShared(),
+    trueCategory,
+    initState: MODEL.states.indexOf($("initSel").value),
     seed: crypto.getRandomValues(new Uint32Array(1))[0], // fresh random seeds on every run
     singleSeed: crypto.getRandomValues(new Uint32Array(1))[0],
     desired: DESIRED,
     sel: $("selSel").value, drug: $("drugSel").value,
-    cadence, catKnown: $("catKnown").checked,
-    alphaType: $("alphaTypeSel").value, alphaMean: parseFloat($("alphaMeanInp").value), alphaDecay: parseFloat($("alphaDecayInp").value),
+    cadence,
   };
 }
+const desiredFor = (matrices) => (matrices.states.length === 3 ? [0.05, 0.94, 0.01] : new Array(matrices.states.length).fill(1 / matrices.states.length));
 let DESIRED = [0.05, 0.94, 0.01];
 let RUNNING = false;
 let LAST = null; // last results; the theme toggle redraws them (a re-run would draw a new random sample)
@@ -553,12 +631,12 @@ function draw({ R, single, cfg }) {
   $("cadBadge").textContent = "cadence = " + cfg.cadence;
   // multi-patient averages tab (every patient starts in Progress)
   drawMetrics(R, cfg);
-  drawCDF("c-cdf", R.survivals, cfg.steps, cssVar("--accent"));
-  drawCDF("c-pfs", R.progressionTimes, cfg.steps, cssVar("--c3"));
+  drawCDF("c-cdf", [{ name: "All patients", color: cssVar("--accent"), times: R.survivals }], cfg.steps);
+  drawCDF("c-pfs", [{ name: "All patients", color: cssVar("--c3"), times: R.progressionTimes }], cfg.steps);
 }
 function showTab(name) {
-  // name = "Single" | "Multi"
-  for (const tab of ["Single", "Multi"]) {
+  // name = "Single" | "Multi" | "Cases"
+  for (const tab of ["Single", "Multi", "Cases"]) {
     const on = tab === name;
     $("tab" + tab).classList.toggle("active", on); $("tab" + tab).setAttribute("aria-selected", on);
     $("view" + tab).hidden = !on;
@@ -578,12 +656,12 @@ async function run() {
   await new Promise((res) => setTimeout(res)); // let the 0% bar paint before compute starts
   try {
     const t0 = performance.now();
-    const single = runEpisode(cfg, cfg.singleSeed); // single patient run: starts in the selected initial state
+    const single = runEpisode(MODEL, cfg, cfg.singleSeed); // single patient run: starts in the selected initial state
     const multiCfg = { ...cfg, initState: MODEL.progress }; // multi-patient averages: every patient starts in Progress
     const eps = [];
     const chunk = Math.max(1, Math.floor(cfg.runs / 60)); // <= ~60 UI updates
     for (let r = 0; r < cfg.runs; r++) {
-      eps.push(runEpisode(multiCfg, (cfg.seed + r * 2654435761) >>> 0));
+      eps.push(runEpisode(MODEL, multiCfg, (cfg.seed + r * 2654435761) >>> 0));
       if ((r + 1) % chunk === 0 || r === cfg.runs - 1) {
         const done = r + 1;
         fill.style.width = (100 * done / cfg.runs).toFixed(1) + "%";
@@ -608,6 +686,104 @@ async function run() {
   }
 }
 
+/* ============================================================
+   Cases compared (third tab)
+   ============================================================ */
+const CASE_SLOTS = 8;     // one categorical color per case, --c1 … --c8
+let CASES = [];           // { dataset, cohort, sel, drug, cadence, slot }
+let CASES_LAST = null;    // last cases run; the theme toggle redraws it
+let CASES_RUNNING = false;
+const MODELS = {};        // built models by data set key; a case keeps the data set it was added on
+const modelFor = (key) => (MODELS[key] ??= buildModel(DATASETS[key]));
+const caseLabel = (c) => `${c.cohort} · ${c.sel === "given_constant" ? c.drug : c.sel} · cadence ${c.cadence} · from ${c.init}`;
+const caseKey = (c) => [c.dataset, c.cohort, c.sel, c.sel === "given_constant" ? c.drug : "", c.cadence, c.init].join("|");
+const casesRunKey = () => JSON.stringify([readShared(), CASES.map(caseKey)]);
+function caseModelConfig(c, shared, seed) {
+  const model = modelFor(c.dataset);
+  return { model, cfg: { ...shared, trueCategory: model.names.indexOf(c.cohort), initState: model.states.indexOf(c.init), seed, desired: desiredFor(DATASETS[c.dataset]), sel: c.sel, drug: c.drug, cadence: c.cadence } };
+}
+function populateCaseForm() {
+  // the form offers the sidebar's data set and starts from the sidebar's choices
+  $("caseCohortSel").innerHTML = MODEL.names.map((n) => `<option>${esc(n)}</option>`).join("");
+  $("caseCohortSel").value = $("cohortSel").value;
+  $("caseDrugSel").innerHTML = MODEL.basisLabels.filter((l) => l !== "None").map((l) => `<option>${esc(l)}</option>`).join("");
+  $("caseDrugSel").value = $("drugSel").value;
+  // initial states as in the sidebar (transient states, then Death); cases start in Progress unless changed
+  $("caseInitSel").innerHTML = MODEL.states.filter((s, i) => i !== MODEL.death).map((s) => `<option>${esc(s)}</option>`).join("") + `<option>${esc(MODEL.states[MODEL.death])}</option>`;
+  $("caseInitSel").value = MODEL.states[MODEL.progress];
+}
+function addCase() {
+  const err = $("errBanner"); err.style.display = "none";
+  try {
+    if (CASES.length >= CASE_SLOTS) throw new Error(`At most ${CASE_SLOTS} cases, one color each; remove one first.`);
+    const c = { dataset: $("dataSel").value, cohort: $("caseCohortSel").value, sel: $("caseSelSel").value, drug: $("caseDrugSel").value, cadence: readCadence($("caseCadInp")), init: $("caseInitSel").value };
+    if (CASES.some((d) => caseKey(d) === caseKey(c))) throw new Error(`"${caseLabel(c)}" is already a case.`);
+    const { model, cfg } = caseModelConfig(c, readShared(), 0);
+    if (cfg.initState < 0) throw new Error(`Initial state "${c.init}" is not a state of this data set: ${JSON.stringify(model.states)}.`);
+    checkFitted(model, cfg); // a case that cannot run never joins the list
+    c.slot = [...Array(CASE_SLOTS).keys()].map((k) => k + 1).find((slot) => !CASES.some((d) => d.slot === slot)); // a case keeps its color
+    CASES.push(c);
+    renderCaseList();
+  } catch (e) {
+    err.style.display = "block"; err.textContent = "⚠ " + e.message;
+  }
+}
+function renderCaseList() {
+  $("caseList").innerHTML = CASES.map((c, i) => `<span class="chip"><span class="linekey" style="background:var(--c${c.slot})"></span>${esc(caseLabel(c))}<button type="button" data-i="${i}" aria-label="Remove case ${esc(caseLabel(c))}" title="Remove case">×</button></span>`).join("");
+  $("caseAddBtn").disabled = CASES.length >= CASE_SLOTS;
+  $("caseRunBtn").disabled = CASES_RUNNING || !CASES.length;
+  refreshCaseStatus();
+}
+function refreshCaseStatus() {
+  if (CASES_RUNNING) return;
+  let text;
+  if (!CASES.length) text = "No cases yet. Pick a cohort and a tuning policy, then press + Add case.";
+  else if (!CASES_LAST) text = `${CASES.length} case${CASES.length > 1 ? "s" : ""} ready. Press ▶ Run cases.`;
+  else {
+    const { results, shared, key } = CASES_LAST;
+    text = `${key === casesRunKey() ? "Showing" : "Cases or settings changed since this run; press ▶ Run cases to update. Showing"} ${results.length} case${results.length > 1 ? "s" : ""} × ${shared.runs} runs, horizon ${shared.steps} weeks, α ${shared.alphaType} (mean ${shared.alphaMean}${shared.alphaType === "decaying" ? `, decay ${shared.alphaDecay}` : ""}).`;
+  }
+  $("caseStatus").textContent = text;
+}
+async function runCases() {
+  if (CASES_RUNNING || !CASES.length) return;
+  const err = $("errBanner"); err.style.display = "none";
+  CASES_RUNNING = true;
+  const btn = $("caseRunBtn"); btn.disabled = true; btn.textContent = "⏳ Running…";
+  try {
+    // one seed for all cases: every case sees the same random numbers (common random numbers)
+    // run the list as it is now; cases added or removed meanwhile make the result stale, not wrong
+    const runList = CASES.map((c) => ({ ...c })), shared = readShared(), seed = crypto.getRandomValues(new Uint32Array(1))[0], key = casesRunKey(), results = [];
+    for (const [i, c] of runList.entries()) {
+      $("caseStatus").textContent = `Running case ${i + 1} of ${runList.length}…`;
+      await new Promise((res) => setTimeout(res)); // let the status paint
+      const { model, cfg } = caseModelConfig(c, shared, seed);
+      results.push({ c, R: runAll(model, cfg) });
+    }
+    CASES_LAST = { results, shared, key };
+    $("caseResults").hidden = false;
+    drawCases();
+  } catch (e) {
+    err.style.display = "block"; err.textContent = "⚠ " + e.message;
+  } finally {
+    btn.textContent = "▶ Run cases";
+    CASES_RUNNING = false;
+    renderCaseList();
+  }
+}
+function drawCases() {
+  const { results, shared } = CASES_LAST, steps = shared.steps;
+  const pcts = (times) => PERCENTILES.map((pct) => fmtPercentile(times, pct, steps)).join(" · ");
+  $("caseTable").innerHTML = `<thead><tr><th>Case</th><th>Survival mean</th><th>Survival P5 · P50 · P95</th><th>PFS mean</th><th>PFS P5 · P50 · P95</th></tr></thead><tbody>`
+    + results.map(({ c, R }) => `<tr><td><span class="linekey" style="background:var(--c${c.slot})"></span>${esc(caseLabel(c))}</td><td>${fmtMean(R.survivals, steps)}</td><td>${pcts(R.survivals)}</td><td>${fmtMean(R.progressionTimes, steps)}</td><td>${pcts(R.progressionTimes)}</td></tr>`).join("") + "</tbody>";
+  // a legend for two or more cases (a single case is named by the table)
+  const legend = results.length > 1 ? results.map(({ c }) => `<span class="item"><span class="linekey" style="background:var(--c${c.slot})"></span>${esc(caseLabel(c))}</span>`).join("") : "";
+  $("caseLegendCdf").innerHTML = legend; $("caseLegendPfs").innerHTML = legend;
+  const seriesOf = (pick) => results.map(({ c, R }) => ({ name: caseLabel(c), color: cssVar(`--c${c.slot}`), times: pick(R) }));
+  drawCDF("c-case-cdf", seriesOf((R) => R.survivals), steps);
+  drawCDF("c-case-pfs", seriesOf((R) => R.progressionTimes), steps);
+}
+
 function populateSelectors() {
   // cohorts (depend on the selected dataset)
   $("cohortSel").innerHTML = MODEL.names.map((n) => `<option>${n}</option>`).join("");
@@ -622,9 +798,10 @@ function populateSelectors() {
 }
 
 function rebuildModel() {
-  MATRICES = DATASETS[$("dataSel").value]; MODEL = buildModel(MATRICES);
-  DESIRED = MATRICES.states.length === 3 ? [0.05, 0.94, 0.01] : new Array(MATRICES.states.length).fill(1 / MATRICES.states.length);
+  MATRICES = DATASETS[$("dataSel").value]; MODEL = modelFor($("dataSel").value);
+  DESIRED = desiredFor(MATRICES);
   populateSelectors();
+  populateCaseForm();
 }
 
 function markStale() {
@@ -634,7 +811,7 @@ function markStale() {
 
 function attachListeners() {
   // Explicit Run: edits mark the view stale; nothing recomputes until Run, Enter or the theme toggle.
-  ["cohortSel", "initSel", "stepsInp", "runsInp", "selSel", "drugSel", "cadInp", "catKnown", "alphaTypeSel", "alphaMeanInp", "alphaDecayInp"].forEach((id) => $(id).addEventListener("change", markStale));
+  ["cohortSel", "initSel", "stepsInp", "runsInp", "selSel", "drugSel", "cadInp", "alphaTypeSel", "alphaMeanInp", "alphaDecayInp"].forEach((id) => $(id).addEventListener("change", markStale));
   $("dataSel").addEventListener("change", () => { rebuildModel(); markStale(); });
   $("cadInp").addEventListener("input", () => { $("cadEcho").textContent = $("cadInp").value; });
   $("selSel").addEventListener("change", () => { $("drugWrap").style.display = $("selSel").value === "given_constant" ? "" : "none"; });
@@ -643,8 +820,14 @@ function attachListeners() {
   $("runBtn").addEventListener("click", run);
   $("tabSingle").addEventListener("click", () => showTab("Single"));
   $("tabMulti").addEventListener("click", () => showTab("Multi"));
+  $("tabCases").addEventListener("click", () => showTab("Cases"));
+  $("caseSelSel").addEventListener("change", () => { $("caseDrugWrap").style.display = $("caseSelSel").value === "given_constant" ? "" : "none"; });
+  $("caseAddBtn").addEventListener("click", addCase);
+  $("caseRunBtn").addEventListener("click", runCases);
+  $("caseList").addEventListener("click", (e) => { const i = e.target.dataset.i; if (i !== undefined) { CASES.splice(Number(i), 1); renderCaseList(); } });
+  document.querySelector("aside.config").addEventListener("change", refreshCaseStatus); // shared settings changed: the shown cases may be stale
   $("resetBtn").addEventListener("click", () => location.reload());
-  $("themeBtn").addEventListener("click", () => { const r = document.documentElement; r.setAttribute("data-theme", r.getAttribute("data-theme") === "dark" ? "light" : "dark"); if (LAST && LAST.model === MODEL) draw(LAST); else run(); });
+  $("themeBtn").addEventListener("click", () => { const r = document.documentElement; r.setAttribute("data-theme", r.getAttribute("data-theme") === "dark" ? "light" : "dark"); if (LAST && LAST.model === MODEL) draw(LAST); else run(); if (CASES_LAST) drawCases(); });
 }
 
 // ---------- boot (data inlined; runs from file:// with no server) ----------
@@ -655,6 +838,7 @@ function attachListeners() {
     $("dataSel").value = DEFAULT_DATASET;
     attachListeners();
     rebuildModel();
+    renderCaseList();
     run();
   } catch (e) {
     const err = document.getElementById("errBanner"); err.style.display = "block"; err.textContent = "⚠ " + e.message;

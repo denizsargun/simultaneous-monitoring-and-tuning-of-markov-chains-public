@@ -132,10 +132,12 @@ step's states, matrices, weights and belief), CSV summaries and a plot.
 ## Web app
 
 A client-side port of the simulator runs in the browser on the same matrices, with a
-selector for the three data sets. It runs entirely in the visitor's browser; GitHub
+selector for the three data sets and a tab that compares (cohort, tuning policy, initial state) cases.
+It runs entirely in the visitor's browser; GitHub
 Pages only serves the files. The web app measures the state every step (entropy
-threshold 0), so it shows the effect of the tuning policy alone; the monitoring
-policies and their metrics are in the Python code only.
+threshold 0) and its agent knows the true cohort, so it shows the effect of the tuning
+policy alone; the monitoring policies, unknown-category inference and their metrics are
+in the Python code only.
 
 - [`docs/index.html`](docs/index.html): served by GitHub Pages at
   `https://denizsargun.github.io/simultaneous-monitoring-and-tuning-of-markov-chains-public/`;

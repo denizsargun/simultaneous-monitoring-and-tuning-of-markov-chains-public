@@ -31,8 +31,9 @@ docs/
    `simulation/runner.py`), and a drug a cohort has no fit for raises an error wherever
    it would be applied. It then runs a Monte-Carlo of full episodes. Each step, per the
    true cohort:
-   - the **agent** decides which treatment target to apply, and measures the next state
-     on every step (entropy-threshold policy with the threshold fixed at 0);
+   - the **agent** knows the true cohort, decides which treatment target to apply, and
+     measures the next state on every step (entropy-threshold policy with the threshold
+     fixed at 0);
    - **tuning cadence** gates the treatment — the selected drug is applied every *N*
      steps and `None` (no treatment) in between;
    - the **environment** blends its transition matrix toward the target,
@@ -40,12 +41,18 @@ docs/
    - the **agent** blends its internal model and updates its Bayesian **belief** over
      `(cohort, state)`.
 
-3. **Charts.** Two tabs. *Single patient run* simulates one patient from the selected
+3. **Charts.** Three tabs. *Single patient run* simulates one patient from the selected
    initial state and shows the tuning schedule and the state trajectory. *Multi-patient
    averages* simulates the Monte Carlo runs, every patient starting in Progress, and
    shows the metric tiles and two time-to-reach CDFs: overall survival (weeks to Death)
    and progression-free survival (weeks to the first Progress after Disease Control, or
-   to Death if Disease Control is never reached). Everything is inline SVG.
+   to Death if Disease Control is never reached). *Cases compared* runs up to eight
+   (true category, tuning policy, initial state) cases with the sidebar's horizon, runs
+   and α, all on the same random seeds, and shows a table of their mean, P5, P50 and P95
+   survival and PFS times and the two CDFs overlaid.
+   Every CDF marks P5, P50 and P95 under its x-axis: the first week at which the
+   empirical CDF reaches 5%, 50% and 95% ("≥ horizon" if it doesn't within the horizon).
+   Everything is inline SVG.
 
 ### Faithful port map
 
@@ -58,9 +65,8 @@ The JS in `index.html` follows these Python sources (differences below):
 | `environment/environment.py` (true cohort's tuning matrix, α-blend + sampling) | `runEpisode` env loop (`mixBasis`, `blend`, `sampleRow`) |
 | `environment/alpha_generators.py` | `alphaExp` (agent, expected) + `expo` (environment, sampled exponential) |
 | `simulation/runner.py` (`_load_matrices_from_yaml`) | `buildModel` |
-| `core/metrics.py` | metric accumulation in `runEpisode` + `runAll` |
+| `core/metrics.py` | metric accumulation in `runEpisode` + `aggregate` |
 | `core/utils.py` (`compute_steady_state`, `mix_tuning_basis`) | `steadyState` (power iteration), `mixBasis` |
-| `plot_time_to_reach_pattern.py` (regex AUC) | `regexArrival` |
 
 **Differences from Python.** The effective matrices, tuning basis, belief updates and
 cadence gate match the Python code. The rest differs in these ways:
@@ -68,13 +74,18 @@ cadence gate match the Python code. The rest differs in these ways:
 - **Measurement:** the browser always measures (Python's `entropy_threshold` policy with
   threshold 0). The dynamic-programming policy, the measurement and switching costs, and
   the monitoring metrics and plots (measurement frequency, tracking error, overall cost,
-  belief, entropy and category belief over time) are Python only.
+  tuning switches, control error, π* distance, belief, entropy and category belief over
+  time) are Python only.
+- **Category:** the browser agent always knows the true cohort (Python's
+  `is_category_known: true`). Python can also leave it unknown (uniform prior over the
+  cohorts, inferred by the belief filter); then every action the selection can apply must
+  be fitted for every cohort, so e.g. `Targeted` fails on `targ_pdl1`.
 - **Random numbers:** the browser seeds its own PRNG with a fresh random seed on every
   run, so runs are not reproducible and sampled trajectories don't match NumPy step for
   step; stochastic aggregates match distributionally.
 - **Start state:** multi-patient averages start every patient in Progress; the single
-  patient run starts in the selected initial state. Python uses `environment.initial_state`
-  for every run.
+  patient run starts in the selected initial state, and each compared case in its own.
+  Python uses `environment.initial_state` for every run.
 - **Progression-free survival CDF:** browser only. Python's `time_to_reach` regex has no
   exact equivalent; its PFS pattern excludes patients who die before Disease Control.
 - **Initial belief:** uniform over states in the browser; a random Dirichlet draw per
