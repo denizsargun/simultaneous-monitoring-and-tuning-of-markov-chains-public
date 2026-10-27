@@ -24,6 +24,7 @@ results/
 !data/T_additive_complete_nsclc_targ_pdl1.pkl
 !data/T_additive_complete_nsclc_pdl1_high.pkl
 !data/T_additive_complete_nsclc_pdl1_pos.pkl
+!data/T_additive_complete_nsclc_targ_pdl1_age65.pkl
 *.parquet
 *.csv
 *.npy

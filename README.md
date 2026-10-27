@@ -15,7 +15,7 @@ This repository accompanies
 cancer data. This repository instead ships aggregate transition matrices fitted to
 AACR Project GENIE BPC **NSCLC** (non-small-cell lung cancer) data: a baseline
 matrix and additive treatment effects per patient cohort. It contains no
-patient-level data. See [`data/README.md`](data/README.md).
+patient-level data. See [Data](#data).
 
 **Research use only.** Nothing here is validated for clinical use or is medical
 advice.
@@ -129,15 +129,60 @@ Computed from the logged episodes by `core.metrics` (the `Metrics` class, plus
 Each run writes `config.pkl` (including the tuning basis), `episode_NNNN.pkl` (every
 step's states, matrices, weights and belief), CSV summaries and a plot.
 
+## Data
+
+`data/` holds aggregate transition matrices for Stage IV NSCLC, fitted to the AACR
+Project GENIE Biopharma Collaborative (BPC) NSCLC v2.0 registry. The files contain
+**only fitted matrices and labels**: no patient records, identifiers, dates, counts or
+free text.
+
+| File | Cohorts (stratification) |
+|---|---|
+| `T_additive_complete_nsclc_targ_pdl1.pkl` | `Targetable+` (targetable driver), and driver-negative patients by PD-L1: `T-/PDL1-High` (≥50%), `T-/PDL1-Low` (<50%), `T-/PDL1-Unknown` |
+| `T_additive_complete_nsclc_pdl1_high.pkl` | PD-L1 `High` (≥50%) vs `Low` (<50%), tested patients only |
+| `T_additive_complete_nsclc_pdl1_pos.pkl` | PD-L1 `Positive` (≥1%) vs `Negative` (<1%), tested patients only |
+| `T_additive_complete_nsclc_targ_pdl1_age65.pkl` | the four `targ_pdl1` cohorts, each split at age 65 (`<cohort> \| <65`, `<cohort> \| >=65`), estimated with empirical-Bayes Dirichlet partial pooling across the two age groups |
+
+`sample_configs/` use the `targ_pdl1` file. The web app offers all four:
+`docs/data/matrices.json` holds them as JSON (rounded to 6 decimals), and
+`docs/app.html` inlines the same numbers.
+
+Each pkl is a list of dicts, one per (cohort, action):
+
+| Key | Meaning |
+|---|---|
+| `category` | cohort name |
+| `action` | the string `"None"` (untreated baseline) or a treatment class: `Chemo`, `IO`, `Targeted`, `Chemo+VEGF`, `Investigational` |
+| `P_0` | 3×3 weekly baseline transition matrix of the cohort (untreated) |
+| `T` | 3×3 additive weekly effect of the action (zero for `None`) |
+| `states`, `states_short` | `Progress`, `Disease Control`, `Death` (`PD`, `DC`, `D`); `Death` is absorbing |
+| `simulation_interval_days` | 7 (one step = one week) |
+| `stratification_mode` | `targ_pdl1`, `pdl1_high` or `pdl1_pos` (`targ_pdl1` in the age-split file) |
+
+Inspect a file with `python3 peek_pkl.py data/<file>.pkl`. Only load pickles you
+trust; `data/SHA256SUMS` lists the published checksums.
+
+**How the matrices were estimated.** Observations (imaging and oncologist
+assessments) were mapped to the three states per patient. `P_0` was estimated from
+observation pairs with no active treatment and rescaled to a 7-day step. For each
+action, `T` was fitted by maximum likelihood so that `(P_0 + T)^k` matches the
+transitions observed while the action was active, with `k` the average observation
+interval in weeks.
+
+**Caveats.** Some (cohort, action) cells rest on few observed transitions, the age-split ones fewer still, and
+entries of `P_0 + T` below zero are clipped. For example, `Chemo+VEGF` in
+`T-/PDL1-High` has zero weekly probability of `Death`.
+
 ## Web app
 
 A client-side port of the simulator runs in the browser on the same matrices, with a
-selector for the three data sets and a tab that compares (cohort, tuning policy, initial state) cases.
+selector for the four data sets and a tab that compares (cohort, tuning policy, initial state) cases.
 It runs entirely in the visitor's browser; GitHub
-Pages only serves the files. The web app measures the state every step (entropy
-threshold 0) and its agent knows the true cohort, so it shows the effect of the tuning
-policy alone; the monitoring policies, unknown-category inference and their metrics are
-in the Python code only.
+Pages only serves the files. By default it measures the state every step and its agent
+knows the true cohort, so it shows the effect of the tuning policy alone. ⚙ Settings adds
+the monitoring policies, an unknown cohort, the costs, the desired distribution π* and a
+fixed random seed; the *Additional metrics* sub-tabs show the belief, entropy and
+monitoring metrics.
 
 - [`docs/index.html`](docs/index.html): served by GitHub Pages at
   `https://denizsargun.github.io/simultaneous-monitoring-and-tuning-of-markov-chains-public/`;
@@ -155,7 +200,7 @@ See [`docs/README.md`](docs/README.md).
 ├── environment/          # true Markov chain, category, state, alpha generators
 ├── simulation/           # YAML runner and simulation loop
 ├── sample_configs/       # sample run and alpha × cadence sweep
-├── data/                 # aggregate NSCLC matrices (see data/README.md)
+├── data/                 # aggregate NSCLC matrices and their SHA256SUMS
 ├── docs/                 # web app
 ├── tests/                # smoke and regression tests
 ├── alpha_cadence_sweep.py
@@ -203,8 +248,8 @@ See [`CITATION.cff`](CITATION.cff).
 
 The code is licensed under the GNU Affero General Public License v3.0 only
 ([`LICENSE`](LICENSE)). The matrices in `data/`, `docs/data/` and the data sets
-inside `docs/app.html` are derived from AACR Project GENIE; see
-[`data/README.md`](data/README.md).
+inside `docs/app.html` are derived from AACR Project GENIE data and are not covered
+by the code license; use them in line with GENIE's terms of access.
 
 ## Acknowledgment
 
